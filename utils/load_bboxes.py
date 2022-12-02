@@ -16,15 +16,15 @@ RED =   (0, 0, 255)
 # Functions
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def read_img_boxes(img_name: str='train_0.jpg', chunksize: int=10000) -> pd.io.parsers.TextFileReader:
+def read_csv_chunks(img_set: str='train', chunksize: int=10000) -> pd.io.parsers.TextFileReader:
     """ 
     Creates a dataframe chunk to iterate over, in order to read the bounding 
     boxes coordinates in the annotation csv files.
 
     Parameters
     ----------
-    img_name: str
-        The image name.
+    img_set: str
+        The image set (train,test or val).
     chunksize: int
         Size of the Dataframe chunk.
     Returns
@@ -33,7 +33,7 @@ def read_img_boxes(img_name: str='train_0.jpg', chunksize: int=10000) -> pd.io.p
         Iterator to read Dataframe in chunks.
     """
     # Build path to annotation file
-    ttv = img_name.split('_')[0]
+    ttv = img_set.split('_')[0]
     annot_file = 'annotations_' + ttv + '.csv'
     annotation_path = os.path.join(ANNOT_PATH, annot_file)
     
@@ -54,8 +54,10 @@ def get_boxes(img_name: str='train_0.jpg') -> pd.DataFrame:
         Dataframe with the box coordinates for given image.
     """
     try: 
+        
+        img_set = img_name.split('_')[0]
         # Search the image in the csv in chunks
-        for chunk_df in read_img_boxes(img_name):
+        for chunk_df in read_csv_chunks(img_set):
             
             img_df = chunk_df[ chunk_df.img_name == img_name ]
             if not img_df.empty: break
@@ -66,7 +68,7 @@ def get_boxes(img_name: str='train_0.jpg') -> pd.DataFrame:
         return box_coords
     
     except NameError:
-        print('Image name doesn not exist in the dataset' )
+        print('Image name does not exist in the dataset' )
         
 
 
