@@ -5,7 +5,7 @@ import os
 import cv2
 import numpy as np
 import pandas as pd
-from utils import utils 
+from utils import util_funcs 
 
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
@@ -40,7 +40,7 @@ def get_bbox_coords(img_name: str='train_0.jpg') -> pd.DataFrame:
         
         img_set = img_name.split('_')[0]
         # Search the image in the csv in chunks
-        for chunk_df in utils.read_csv_chunks(img_set):
+        for chunk_df in util_funcs.read_csv_chunks(img_set):
             
             img_df = chunk_df[ chunk_df.img_name == img_name ]
             if not img_df.empty: break

@@ -36,7 +36,7 @@ def parse_args():
     return args
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  Python Prepara Data Folder Structure
+#  Script: Prepare Data
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def prepare_data(src_path: str = SRC_PATH, dst_path: str = DST_PATH):
     """ 
@@ -49,7 +49,7 @@ def prepare_data(src_path: str = SRC_PATH, dst_path: str = DST_PATH):
     dst_path: str
         Destination path where to store reordered images.
     """
-    # run bash: python3 script/prepare_data.py "./data/SKU110K/images" "./data/train_test_SKU"
+    # run bash: python3 scripts/prepare_data.py "./data/SKU110K/images" "./data/train_test_SKU"
     
     for parent_dir,_,files in os.walk(src_path):
         

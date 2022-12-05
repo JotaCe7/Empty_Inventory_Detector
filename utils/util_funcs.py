@@ -5,6 +5,7 @@
 import os
 import pandas as pd
 import numpy as  np
+import PIL
 from utils import bboxes
 
 IMG_PATH = '../data/train_test_SKU'
@@ -39,6 +40,32 @@ def read_csv_chunks(img_set: str='train', chunksize: int=10000) -> pd.io.parsers
     
     return pd.read_csv(annotation_path, names=['img_name', 'x1', 'y1', 'x2', 'y2', 'type', 'height', 'width'], chunksize=chunksize)
 
+def drop_missing_img(imgs: pd.Series) -> pd.Series:
+    """ 
+    Get a list of failed images (based on criterion)
+
+    Parameters
+    ----------
+    imgs: pd.DataFrame
+        The dataframe containing the images and it's tags. 
+
+    Returns
+    ----------
+    clean_imgs: pd.Series
+        Series of existent images.
+    """
+
+    # Check if the img_name exist. Drop it if it doesn't 
+    for img in imgs.index:
+            # Build path to image
+        ttv = img.split('_')[0]
+        img_path = os.path.join(IMG_PATH, ttv, img) 
+
+        if not os.path.exists(img_path): 
+            imgs.drop(img, inplace= True)
+    
+    
+    return imgs
 
 def get_failed_imgs(tags_df: pd.DataFrame, criterion: str = 'area', thresh: float = 0.01, verbose: bool = True) -> list:
     """ 
@@ -55,7 +82,8 @@ def get_failed_imgs(tags_df: pd.DataFrame, criterion: str = 'area', thresh: floa
         The threshold to use fo filter for failed images. 
         If criterion == 'area': this corresponds to the lower quantile.
         If criterion == 'n_bboxes': this corresponds to the min number of bounding boxes.
-        
+    verbose: bool
+        Wether extra information will be printed or not.
     Returns
     ----------
     failed_imgs: list
@@ -72,6 +100,9 @@ def get_failed_imgs(tags_df: pd.DataFrame, criterion: str = 'area', thresh: floa
         n_tags_per_image = tags_df.groupby('img_name').size().sort_values()
         failed_imgs = n_tags_per_image[n_tags_per_image < thresh]
       
+        # Check if the img_name exist. Drop it if it doesn't 
+        failed_imgs = drop_missing_img(failed_imgs)
+      
         # Prints information
         if verbose: 
             n_failed = failed_imgs.shape[0]
@@ -87,6 +118,9 @@ def get_failed_imgs(tags_df: pd.DataFrame, criterion: str = 'area', thresh: floa
         
         FAIL_THRESH = np.quantile(bbox_area_cover,q = thresh)
         failed_imgs = bbox_area_cover[bbox_area_cover < FAIL_THRESH]
+        
+        # Check if the img_name exist. Drop it if it doesn't 
+        failed_imgs = drop_missing_img(failed_imgs)
         
         # Prints information
         if verbose: 
@@ -115,3 +149,5 @@ def remove_failed_imgs_from_data(img_list: list):
         if os.path.exists(img_path):
             print(f'{img_name} removed.')
             os.unlink(img_path)
+            
+            
