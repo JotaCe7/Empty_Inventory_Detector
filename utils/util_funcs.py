@@ -183,14 +183,17 @@ def to_yolov5_coords(original_tags_df:pd.DataFrame) -> pd.DataFrame:
     ymin_coords =  original_tags_df.y1
     xmax_coords =  original_tags_df.x2
     ymax_coords = original_tags_df.y2
+    Width = original_tags_df.total_width
+    Heigth = original_tags_df.total_height
+    
     
     # Compute YOLO coordinates
-    width_bb = (xmax_coords.values - xmin_coords.values)
-    height_bb = (ymax_coords.values - ymin_coords.values)
-    center_x = width_bb / 2
-    center_y = height_bb / 2
+    width_bb = (xmax_coords.values - xmin_coords.values) / Width
+    height_bb = (ymax_coords.values - ymin_coords.values) / Heigth
+    center_x = width_bb / 2 / Width
+    center_y = height_bb / 2 / Heigth
 
-    # Create the new Dataframe with the correpsonding columns
+    # Create the new Dataframe with the corresponding columns
     yolo_labels_df = pd.DataFrame()
     
     yolo_labels_df.index = original_tags_df.index
@@ -205,14 +208,22 @@ def to_yolov5_coords(original_tags_df:pd.DataFrame) -> pd.DataFrame:
 
 def labels_to_txt(yolo_labels_df: pd.DataFrame):
     
-    img_set = set(yolo_labels_df.index)
-    os.makedirs(LABEL_PATH, exist_ok= True)
+    img_set = sorted(set(yolo_labels_df.index))
+    formatter = ['%d'] + ['%1.8f']*4
     
+    os.makedirs(LABEL_PATH, exist_ok= True)
     for img in img_set:
         
+        # Filepath
         filename = img.split('.')[0] + '.txt'
         filepath = os.path.join(LABEL_PATH, filename)
-        np.savetxt(filepath,yolo_labels_df.loc[img].values, fmt= '%d')
+        
+        # Get coordinate values
+        values = np.array(yolo_labels_df.loc[img].values)
+        if values.ndim == 1: values = values.reshape(1,-1)
+                 
+        # Save to text file
+        np.savetxt(filepath,values, fmt= formatter)
         if os.path.exists(filepath): print(f' {filename} saved')
     
     
