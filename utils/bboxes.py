@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 
 
-IMG_PATH = '../data/train_test_SKU'
+IMG_PATH = '../data/train_test_SKU/images'
 ANNOT_PATH = '../data/SKU110K/annotations'
 
 
@@ -133,7 +133,7 @@ def get_bboxes_total_area(tags_df: pd.DataFrame):
         Dataframe with area related information.
     """    
     # Calculate total_area of the images
-    tags_df['total_area'] = tags_df.height * tags_df.width
+    tags_df['total_area'] = tags_df.total_height * tags_df.total_width
 
     # Calculate area of bboxes in the images
     tags_df['bbox_area'] = tags_df.apply(lambda r: get_bbox_area( (r.x1,r.y1,r.x2,r.y2) ), axis = 1)
@@ -142,7 +142,7 @@ def get_bboxes_total_area(tags_df: pd.DataFrame):
     tags_df['bbox_area_perc']  = tags_df.bbox_area / tags_df.total_area
 
     # Get only areas related columns
-    areas_df = tags_df[['img_name', 'total_area','bbox_area','bbox_area_perc']]
-    areas_df.set_index('img_name', inplace= True)
+    areas_df = tags_df[ ['total_area','bbox_area','bbox_area_perc'] ]
+    # areas_df.set_index('img_name', inplace= True)
     
     return areas_df

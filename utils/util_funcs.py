@@ -5,11 +5,12 @@
 import os
 import pandas as pd
 import numpy as  np
-import PIL
+from PIL import Image
 from utils import bboxes
 
-IMG_PATH = '../data/train_test_SKU'
+IMG_PATH = '../data/train_test_SKU/images'
 ANNOT_PATH = '../data/SKU110K/annotations'
+LABEL_PATH = '../data/train_test_SKU/labels'
 
 CRITERIA = ['area','n_bboxes']
 
@@ -38,7 +39,7 @@ def read_csv_chunks(img_set: str='train', chunksize: int=10000) -> pd.io.parsers
     annot_file = 'annotations_' + ttv + '.csv'
     annotation_path = os.path.join(ANNOT_PATH, annot_file)
     
-    return pd.read_csv(annotation_path, names=['img_name', 'x1', 'y1', 'x2', 'y2', 'type', 'height', 'width'], chunksize=chunksize)
+    return pd.read_csv(annotation_path, names=['img_name', 'x1', 'y1', 'x2', 'y2', 'type', 'total_height', 'total_width'], chunksize=chunksize)
 
 def drop_missing_img(imgs: pd.Series) -> pd.Series:
     """ 
@@ -127,27 +128,91 @@ def get_failed_imgs(tags_df: pd.DataFrame, criterion: str = 'area', thresh: floa
             print('Treshold used:', FAIL_THRESH)
             print('# failed images: ', len(failed_imgs))
 
-    return failed_imgs
-
-def remove_failed_imgs_from_data(img_list: list):
+    return failed_imgs            
+            
+def detected_corrupted_imgs(tags_df: pd.DataFrame) -> list:
     """ 
-    Function to delete the hardlinked images on `img_list'
-    Parameters
+    Detects corrupted images in the dataset
     ----------
-    img_list: list  
-        The list of image names to delete from the dataset 
+    tag_df: pd.DataFrame
+        The dataframe containing the images and it's tags. 
     Returns
     ----------
-        None
+    corrupted_imgs: list
+        List of corrupted images sorted by name. 
     """
-    
+        
+    img_list = set(tags_df.index)
+
+    corrupted_imgs = []
     for img_name in img_list:
         
+        # Build path to img
         folder = img_name.split('_')[0]
         img_path = os.path.join(IMG_PATH,folder,img_name)
+        # Read img
+        try: 
+            img = Image.open(img_path)
+            img.getdata()[0]
+        except:
+            # Append the corrupted img_name and continue
+            corrupted_imgs.append(img_name)
+            continue
+       
+    return sorted(corrupted_imgs)
+    
+def to_yolov5_coords(original_tags_df:pd.DataFrame) -> pd.DataFrame:
+    """ 
+    Converts the bboxes coordinates from format `xmin, ymin, xmax, ymax`
+    to center_x, center_y, width height`  
+    ----------
+    original_label_df: pd.DataFrame
+        Dataframe containing the image names and it's tags using
+        `xmin, ymin, xmax, ymax`coordinates 
+    Returns
+    ----------
+    yolo_labels_df: pd.DataFrame
+        Dataframe with the bboxes coordinates converted to yolo
+        format: `class_id,center_x, center_y, width height`  
+    """
+    
+    n_samples = len(original_tags_df)    
+    
+    # Get original coordinates
+    xmin_coords = original_tags_df.x1 
+    ymin_coords =  original_tags_df.y1
+    xmax_coords =  original_tags_df.x2
+    ymax_coords = original_tags_df.y2
+    
+    # Compute YOLO coordinates
+    width_bb = (xmax_coords.values - xmin_coords.values)
+    height_bb = (ymax_coords.values - ymin_coords.values)
+    center_x = width_bb / 2
+    center_y = height_bb / 2
+
+    # Create the new Dataframe with the correpsonding columns
+    yolo_labels_df = pd.DataFrame()
+    
+    yolo_labels_df.index = original_tags_df.index
+    yolo_labels_df['class_id'] = 0
+    yolo_labels_df['center_x'] = center_x
+    yolo_labels_df['center_y'] = center_y
+    yolo_labels_df['width_bb'] = width_bb
+    yolo_labels_df['height_bb'] = height_bb
+    
+    return yolo_labels_df
+
+
+def labels_to_txt(yolo_labels_df: pd.DataFrame):
+    
+    img_set = set(yolo_labels_df.index)
+    os.makedirs(LABEL_PATH, exist_ok= True)
+    
+    for img in img_set:
         
-        if os.path.exists(img_path):
-            print(f'{img_name} removed.')
-            os.unlink(img_path)
-            
-            
+        filename = img.split('.')[0] + '.txt'
+        filepath = os.path.join(LABEL_PATH, filename)
+        np.savetxt(filepath,yolo_labels_df.loc[img].values, fmt= '%d')
+        if os.path.exists(filepath): print(f' {filename} saved')
+    
+    

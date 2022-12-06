@@ -8,7 +8,7 @@
 import os, cv2, pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-IMG_PATH = '../data/train_test_SKU'
+IMG_PATH = '../data/train_test_SKU/images'
 ANNOT_PATH = '../data/SKU110K/annotations'
 
 def read_img_boxes(img_name: str='train_0.jpg', chunksize: int=10000) -> pd.io.parsers.TextFileReader:
