@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 
 
-IMG_PATH = '../data/train_test_SKU/images'
+IMG_FOLDER = '../data/train_test_SKU'
 ANNOT_PATH = '../data/SKU110K/annotations'
 
 
@@ -74,7 +74,7 @@ def get_bboxes(img_name: str='train_0.jpg', axes: Axes = None, plot_f: bool = Tr
     """
     # Build path to image
     ttv = img_name.split('_')[0]
-    img_path = os.path.join(IMG_PATH, ttv, img_name)
+    img_path = os.path.join(IMG_FOLDER, ttv,'images', img_name)
     
     # Read the image
     img = cv2.imread(img_path)

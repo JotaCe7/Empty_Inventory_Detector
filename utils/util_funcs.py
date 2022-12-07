@@ -8,7 +8,7 @@ import numpy as  np
 from PIL import Image
 from utils import bboxes
 
-IMG_PATH = '../data/train_test_SKU/images'
+IMG_FOLDER = '../data/train_test_SKU'
 ANNOT_PATH = '../data/SKU110K/annotations'
 LABEL_PATH = '../data/train_test_SKU/labels'
 
@@ -60,7 +60,7 @@ def drop_missing_img(imgs: pd.Series) -> pd.Series:
     for img in imgs.index:
             # Build path to image
         ttv = img.split('_')[0]
-        img_path = os.path.join(IMG_PATH, ttv, img) 
+        img_path = os.path.join(IMG_FOLDER, ttv,'images',img) 
 
         if not os.path.exists(img_path): 
             imgs.drop(img, inplace= True)
@@ -149,7 +149,7 @@ def detected_corrupted_imgs(tags_df: pd.DataFrame) -> list:
         
         # Build path to img
         folder = img_name.split('_')[0]
-        img_path = os.path.join(IMG_PATH,folder,img_name)
+        img_path = os.path.join(IMG_FOLDER,folder,'images',img_name)
         # Read img
         try: 
             img = Image.open(img_path)
@@ -174,34 +174,34 @@ def to_yolov5_coords(original_tags_df:pd.DataFrame) -> pd.DataFrame:
     yolo_labels_df: pd.DataFrame
         Dataframe with the bboxes coordinates converted to yolo
         format: `class_id,center_x, center_y, width height`  
-    """
-    
-    n_samples = len(original_tags_df)    
+    """ 
     
     # Get original coordinates
-    xmin_coords = original_tags_df.x1 
-    ymin_coords =  original_tags_df.y1
-    xmax_coords =  original_tags_df.x2
-    ymax_coords = original_tags_df.y2
-    Width = original_tags_df.total_width
-    Heigth = original_tags_df.total_height
+    Width =     original_tags_df.total_width
+    Heigth =    original_tags_df.total_height
     
+    xmin_coords =   original_tags_df.x1 
+    ymin_coords =   original_tags_df.y1
+    xmax_coords =   original_tags_df.x2
+    ymax_coords =   original_tags_df.y2
     
     # Compute YOLO coordinates
-    width_bb = (xmax_coords.values - xmin_coords.values) / Width
-    height_bb = (ymax_coords.values - ymin_coords.values) / Heigth
-    center_x = width_bb / 2 / Width
-    center_y = height_bb / 2 / Heigth
+    
+    center_x =  (xmax_coords.values + xmin_coords.values) //2 / Width 
+    center_y =  (ymax_coords.values + ymin_coords.values) //2 / Heigth  
+    width_x =  (xmax_coords.values - xmin_coords.values) / Width
+    height_y = (ymax_coords.values - ymin_coords.values) / Heigth
+    
 
     # Create the new Dataframe with the corresponding columns
     yolo_labels_df = pd.DataFrame()
     
     yolo_labels_df.index = original_tags_df.index
-    yolo_labels_df['class_id'] = 0
+    yolo_labels_df['class_id'] = 1
     yolo_labels_df['center_x'] = center_x
     yolo_labels_df['center_y'] = center_y
-    yolo_labels_df['width_bb'] = width_bb
-    yolo_labels_df['height_bb'] = height_bb
+    yolo_labels_df['width_bb'] = width_x
+    yolo_labels_df['height_bb'] = height_y
     
     return yolo_labels_df
 
@@ -209,14 +209,17 @@ def to_yolov5_coords(original_tags_df:pd.DataFrame) -> pd.DataFrame:
 def labels_to_txt(yolo_labels_df: pd.DataFrame):
     
     img_set = sorted(set(yolo_labels_df.index))
-    formatter = ['%d'] + ['%1.8f']*4
+    formatter = ['%d'] + ['%1.16f']*4
     
-    os.makedirs(LABEL_PATH, exist_ok= True)
+    # Create folder
+    folder = os.path.join(LABEL_PATH,img_set[0].split('_')[0])
+    os.makedirs(folder, exist_ok= True)
+    
     for img in img_set:
         
         # Filepath
         filename = img.split('.')[0] + '.txt'
-        filepath = os.path.join(LABEL_PATH, filename)
+        filepath = os.path.join(folder, filename)
         
         # Get coordinate values
         values = np.array(yolo_labels_df.loc[img].values)

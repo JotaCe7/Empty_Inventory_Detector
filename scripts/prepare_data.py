@@ -7,7 +7,7 @@ import pandas as pd
 import os
 
 SRC_PATH = "./data/SKU110K/images"
-DST_PATH = "./data/train_test_SKU"
+DST_PATH = "./data/train_test_SKU/images"
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #  Python Arg Parser
@@ -15,20 +15,22 @@ DST_PATH = "./data/train_test_SKU"
 def parse_args():
     parser = argparse.ArgumentParser(description="Prepare data folder")
     parser.add_argument(
-        "source_folder",
+        "--source_folder",
         type=str,
         help=(
             "Full path to the directory having all the store images. E.g. "
             "`/home/app/src/data/SKU110K/images/`."
         ),
+        required= False
     )
     parser.add_argument(
-        "destination_folder",
+        "--destination_folder",
         type=str,
         help=(
             "Full path to the directory where the reordered images will be stored"
             "w.g. `/home/app/src/data//train_test_SKU`"
         ),
+        required= False
     )
 
     args = parser.parse_args()
@@ -59,19 +61,11 @@ def prepare_data(src_path: str = SRC_PATH, dst_path: str = DST_PATH):
                 # Path to original image
                 img_path = os.path.join(parent_dir,file)
                 
-                # Decide in which directory will the image be stored (train,test or val)
-                if  file.startswith('test_'):
-                    trgt_folder = os.path.join(dst_path,'test')
-                    trgt_path = os.path.join(trgt_folder,file)
-                    
-                elif file.startswith('train_'):
-                    trgt_folder = os.path.join(dst_path,'train')
-                    trgt_path = os.path.join(trgt_folder,file)
-                    
-                elif file.startswith('val_'):
-                    trgt_folder = os.path.join(dst_path,'val')
-                    trgt_path = os.path.join(trgt_folder,file)
-                   
+                # Create correct target directory (train,test or validation folders)
+                ttv = file.split("_")[0]
+                trgt_folder = os.path.join(dst_path, ttv)
+                trgt_path = os.path.join(trgt_folder,file)
+
                 # Create the directory and link images
                 os.makedirs(trgt_folder, exist_ok = True)
                 if not os.path.exists(trgt_path):
@@ -80,5 +74,10 @@ def prepare_data(src_path: str = SRC_PATH, dst_path: str = DST_PATH):
                 
              
 if __name__ == "__main__":
+    
     args = parse_args()
-    prepare_data(args.source_folder, args.destination_folder)                               
+    
+    if args._get_args():
+        prepare_data(args.source_folder, args.destination_folder)                               
+    else: 
+        prepare_data()
