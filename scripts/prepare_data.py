@@ -6,8 +6,7 @@ import argparse
 import pandas as pd
 import os
 
-SRC_PATH = "./data/SKU110K/images"
-DST_PATH = "./data/train_test_SKU/images"
+from utils import cons
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #  Python Arg Parser
@@ -40,7 +39,7 @@ def parse_args():
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #  Script: Prepare Data
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def prepare_data(src_path: str = SRC_PATH, dst_path: str = DST_PATH):
+def prepare_data(src_path: str = cons.SRC_PATH, dst_path: str = cons.DST_PATH):
     """ 
     Separates the images into traint, test and validation subfolders.
 
@@ -63,7 +62,7 @@ def prepare_data(src_path: str = SRC_PATH, dst_path: str = DST_PATH):
                 
                 # Create correct target directory (train,test or validation folders)
                 ttv = file.split("_")[0]
-                trgt_folder = os.path.join(dst_path, ttv)
+                trgt_folder = os.path.join(dst_path, ttv, 'images')
                 trgt_path = os.path.join(trgt_folder,file)
 
                 # Create the directory and link images

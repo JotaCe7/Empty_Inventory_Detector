@@ -1,23 +1,18 @@
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # PREAMBLE
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Python imports
 import os 
 import cv2
 import numpy as np
 import pandas as pd
-from utils import util_funcs 
 
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 
-
-IMG_FOLDER = '../data/train_test_SKU'
-ANNOT_PATH = '../data/SKU110K/annotations'
-
-
-BLUE =  (255, 0, 0)  
-GREEN = (0, 255, 0)  
-RED =   (0, 0, 255)
+# Self-made
+from utils import util_funcs 
+from utils import cons
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Functions
@@ -74,7 +69,7 @@ def get_bboxes(img_name: str='train_0.jpg', axes: Axes = None, plot_f: bool = Tr
     """
     # Build path to image
     ttv = img_name.split('_')[0]
-    img_path = os.path.join(IMG_FOLDER, ttv,'images', img_name)
+    img_path = os.path.join(cons.IMG_FOLDER, ttv,'images', img_name)
     
     # Read the image
     img = cv2.imread(img_path)
@@ -83,7 +78,7 @@ def get_bboxes(img_name: str='train_0.jpg', axes: Axes = None, plot_f: bool = Tr
     # Plot all boxes
     for _, box_coords in box_coordinates.iterrows():
         x1, y1, x2, y2 = (box_coords.x1, box_coords.y1, box_coords.x2, box_coords.y2)
-        cv2.rectangle(img, (x1, y1), (x2, y2), GREEN, thickness=5)
+        cv2.rectangle(img, (x1, y1), (x2, y2), cons.GREEN, thickness=5)
 
     # Plot image with boxes
     if plot_f:

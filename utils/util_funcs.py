@@ -1,18 +1,13 @@
-
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# PREAMBLE
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------# PREAMBLE
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 import os
 import pandas as pd
 import numpy as  np
 from PIL import Image
+
+# Self-made
 from utils import bboxes
-
-IMG_FOLDER = '../data/train_test_SKU'
-ANNOT_PATH = '../data/SKU110K/annotations'
-LABEL_PATH = '../data/train_test_SKU/labels'
-
-CRITERIA = ['area','n_bboxes']
+from utils import cons
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Functions
@@ -37,9 +32,9 @@ def read_csv_chunks(img_set: str='train', chunksize: int=10000) -> pd.io.parsers
     # Build path to annotation file
     ttv = img_set.split('_')[0]
     annot_file = 'annotations_' + ttv + '.csv'
-    annotation_path = os.path.join(ANNOT_PATH, annot_file)
+    annotation_path = os.path.join(cons.ANNOT_PATH, annot_file)
     
-    return pd.read_csv(annotation_path, names=['img_name', 'x1', 'y1', 'x2', 'y2', 'type', 'total_height', 'total_width'], chunksize=chunksize)
+    return pd.read_csv(annotation_path, names= cons.ANNOT_COLS, chunksize=chunksize)
 
 def drop_missing_img(imgs: pd.Series) -> pd.Series:
     """ 
@@ -60,7 +55,7 @@ def drop_missing_img(imgs: pd.Series) -> pd.Series:
     for img in imgs.index:
             # Build path to image
         ttv = img.split('_')[0]
-        img_path = os.path.join(IMG_FOLDER, ttv,'images',img) 
+        img_path = os.path.join(cons.IMG_FOLDER, ttv,'images',img) 
 
         if not os.path.exists(img_path): 
             imgs.drop(img, inplace= True)
@@ -91,7 +86,7 @@ def get_failed_imgs(tags_df: pd.DataFrame, criterion: str = 'area', thresh: floa
         List of failed image names.
     """
     # Check for valid criterion
-    if criterion not in CRITERIA:
+    if criterion not in cons.CRITERIA:
         raise ValueError("Criterion used not valid. Enter either 'area' or 'n_bboxes'.")
     
     
@@ -149,7 +144,7 @@ def detected_corrupted_imgs(tags_df: pd.DataFrame) -> list:
         
         # Build path to img
         folder = img_name.split('_')[0]
-        img_path = os.path.join(IMG_FOLDER,folder,'images',img_name)
+        img_path = os.path.join(cons.IMG_FOLDER,folder,'images',img_name)
         # Read img
         try: 
             img = Image.open(img_path)
@@ -164,7 +159,7 @@ def detected_corrupted_imgs(tags_df: pd.DataFrame) -> list:
 def to_yolov5_coords(original_tags_df:pd.DataFrame) -> pd.DataFrame:
     """ 
     Converts the bboxes coordinates from format `xmin, ymin, xmax, ymax`
-    to center_x, center_y, width height`  
+    to `center_x, center_y, width_x, height_y`  
     ----------
     original_label_df: pd.DataFrame
         Dataframe containing the image names and it's tags using
@@ -173,12 +168,12 @@ def to_yolov5_coords(original_tags_df:pd.DataFrame) -> pd.DataFrame:
     ----------
     yolo_labels_df: pd.DataFrame
         Dataframe with the bboxes coordinates converted to yolo
-        format: `class_id,center_x, center_y, width height`  
+        format: `class_id,center_x, center_y, width_x, height_y`  
     """ 
     
     # Get original coordinates
     Width =     original_tags_df.total_width
-    Heigth =    original_tags_df.total_height
+    Height =    original_tags_df.total_height
     
     xmin_coords =   original_tags_df.x1 
     ymin_coords =   original_tags_df.y1
@@ -186,33 +181,32 @@ def to_yolov5_coords(original_tags_df:pd.DataFrame) -> pd.DataFrame:
     ymax_coords =   original_tags_df.y2
     
     # Compute YOLO coordinates
+    center_x =  ((xmax_coords.values + xmin_coords.values) //2) / Width 
+    center_y =  ((ymax_coords.values + ymin_coords.values) //2) / Height  
+    width_x  =  (xmax_coords.values - xmin_coords.values) / Width
+    height_y =  (ymax_coords.values - ymin_coords.values) / Height
     
-    center_x =  (xmax_coords.values + xmin_coords.values) //2 / Width 
-    center_y =  (ymax_coords.values + ymin_coords.values) //2 / Heigth  
-    width_x =  (xmax_coords.values - xmin_coords.values) / Width
-    height_y = (ymax_coords.values - ymin_coords.values) / Heigth
-    
-
     # Create the new Dataframe with the corresponding columns
     yolo_labels_df = pd.DataFrame()
     
     yolo_labels_df.index = original_tags_df.index
-    yolo_labels_df['class_id'] = 1
-    yolo_labels_df['center_x'] = center_x
-    yolo_labels_df['center_y'] = center_y
-    yolo_labels_df['width_bb'] = width_x
-    yolo_labels_df['height_bb'] = height_y
+    yolo_labels_df['class_id']  =   1
+    yolo_labels_df['center_x']  =   center_x
+    yolo_labels_df['center_y']  =   center_y
+    yolo_labels_df['width_bb']  =   width_x
+    yolo_labels_df['height_bb'] =   height_y
     
     return yolo_labels_df
 
 
-def labels_to_txt(yolo_labels_df: pd.DataFrame):
+def labels_to_txt(yolo_labels_df: pd.DataFrame) -> None:
     
     img_set = sorted(set(yolo_labels_df.index))
     formatter = ['%d'] + ['%1.16f']*4
     
     # Create folder
-    folder = os.path.join(LABEL_PATH,img_set[0].split('_')[0])
+    ttv = img_set[0].split('_')[0]
+    folder = os.path.join(cons.LABEL_PATH, ttv ,'labels')
     os.makedirs(folder, exist_ok= True)
     
     for img in img_set:

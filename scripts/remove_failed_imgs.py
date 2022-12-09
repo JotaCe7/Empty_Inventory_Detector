@@ -6,8 +6,7 @@ import argparse
 import pandas as pd
 import os
 
-IMG_FOLDER = '../data/train_test_SKU'
-BAD_PATH='../data/bad_data'
+
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #  Python Arg Parser
@@ -53,12 +52,24 @@ def remove_failed_imgs(failed_path: str):
     for img_name in img_list:
         
         folder = img_name.split('_')[0]
-        img_path = os.path.join(IMG_FOLDER[1:],folder,'images',img_name)
+        lbl_name = img_name.split(".")[0] + ".txt"
+        img_path = os.path.join(cons.IMG_FOLDER,folder,'images',img_name)
+        lbl_path = os.path.join(cons.LABEL_PATH,folder,'labels',lbl_name)
         
-        if os.path.exists(img_path):
-            print(f'{img_name} removed.')
+
+        try:
             os.remove(img_path)
+            print(f'{img_name} removed.')
+        except OSError:
+            pass
+        
+        try:
+            os.remove(lbl_path)
+            print(f'{lbl_name} removed.')
+        except OSError:
+            pass      
             
 if __name__ == "__main__":
+    
     args = parse_args()
     remove_failed_imgs(args.failed_path)                               
