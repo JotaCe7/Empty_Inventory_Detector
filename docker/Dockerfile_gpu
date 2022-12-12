@@ -21,8 +21,8 @@ RUN adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID app
 USER app
 
 # Setup some paths
-ENV PYTHONPATH=/home/app/.local/lib/python3.8/site-packages:/home/app/src
-ENV PATH=$PATH:/home/app/.local/bin
+ENV PYTHONPATH=/home/app/.local/lib/python3.8/site-packages: /home/app/src
+ENV PATH=$PATH: /home/app/.local/bin
 
 # Install the python packages for this new user
 ADD requirements.txt .

@@ -1,4 +1,6 @@
 data/train_test_SKU
 data/SKU110K
+data/train_100
+data/roboflow
 mytest.py
 yolov5

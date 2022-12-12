@@ -3,7 +3,6 @@
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 import argparse
-import pandas as pd
 import os
 
 import cons
@@ -41,7 +40,7 @@ def parse_args():
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def prepare_data(src_path: str = cons.SRC_PATH, dst_path: str = cons.DST_PATH):
     """ 
-    Separates the images into traint, test and validation subfolders.
+    Separates the images into train, test and validation subfolders.
 
     Parameters
     ----------

@@ -214,7 +214,7 @@ def labels_to_txt(yolo_labels_df: pd.DataFrame) -> None:
     
     # Preamble
     img_set = sorted(set(yolo_labels_df.index))
-    formatter = ['%d'] + ['%1.16f']*4
+    formatter = ['%d'] + ['%1.16f']*4              
     
     # Create folder
     ttv = img_set[0].split('_')[0]
