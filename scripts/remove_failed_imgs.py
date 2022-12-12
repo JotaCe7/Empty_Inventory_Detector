@@ -6,7 +6,7 @@ import argparse
 import pandas as pd
 import os
 
-
+import cons 
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #  Python Arg Parser
@@ -61,15 +61,20 @@ def remove_failed_imgs(failed_path: str):
             os.remove(img_path)
             print(f'{img_name} removed.')
         except OSError:
-            pass
+            print('Failed: Image file doesn\'t exist')
         
         try:
             os.remove(lbl_path)
             print(f'{lbl_name} removed.')
         except OSError:
+            print('Failed: Text file doesn\'t exist')
             pass      
             
 if __name__ == "__main__":
     
+    # System 
+    import sys
+    sys.path.append('..')
+
     args = parse_args()
     remove_failed_imgs(args.failed_path)                               

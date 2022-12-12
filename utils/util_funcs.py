@@ -201,6 +201,18 @@ def to_yolov5_coords(original_tags_df:pd.DataFrame) -> pd.DataFrame:
 
 def labels_to_txt(yolo_labels_df: pd.DataFrame) -> None:
     
+    """ 
+    Convert a dataframe to a series of text files (yolo coordinates)
+    ----------
+    yolo_labels_df: pd.DataFrame
+        Dataframe containing the image names and it's tags using
+        yolo coordinates 
+    Returns
+    ----------
+    None 
+    """ 
+    
+    # Preamble
     img_set = sorted(set(yolo_labels_df.index))
     formatter = ['%d'] + ['%1.16f']*4
     
@@ -223,4 +235,35 @@ def labels_to_txt(yolo_labels_df: pd.DataFrame) -> None:
         np.savetxt(filepath,values, fmt= formatter)
         if os.path.exists(filepath): print(f' {filename} saved')
     
+def pick_random_imgs(start, end, size, img_set:str = 'train') -> None:
+
+    img_list = []
+    # List of images
+    while (len(img_list) < size):
+        
+        img_number = np.random.randint(low = start, high = end + 1)
+        img_name = img_set+ '_' + str(img_number) + '.jpg'
+        path_img = os.path.join(cons.IMG_FOLDER ,img_set, 'images',img_name)
+        if os.path.exists(path_img):
+            img_list.append(img_number)
+        
+    img_names = [ (img_set+'_' + str(img_i) + '.jpg', img_set+'_' + str(img_i) + '.txt' ) for img_i in img_list]
     
+    # Create new folder
+    folder = os.path.join(cons.DATA_PATH, img_set + '_' + str(size))
+   
+    os.makedirs(os.path.join(folder, 'images'),exist_ok= True)            # ./data/train_100/images
+    os.makedirs(os.path.join(folder, 'labels'),exist_ok= True)            # ./data/train_100/labels
+    
+    # Link images
+    for img_name,lbl_name in img_names:
+        
+        src_path_img = os.path.join(cons.IMG_FOLDER ,img_set, 'images',img_name)
+        src_path_lbl = os.path.join(cons.IMG_FOLDER ,img_set, 'labels',lbl_name)
+        img_path = os.path.join(folder,'images', img_name)
+        lbl_path = os.path.join(folder,'labels', lbl_name)
+        
+        if not os.path.exists(img_path):          
+            os.link(src_path_img,img_path)
+            os.link(src_path_lbl,lbl_path)
+            print(f'{img_path} created.')
