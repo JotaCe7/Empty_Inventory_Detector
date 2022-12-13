@@ -13,7 +13,8 @@ RUN apt-get update && \
     libxext6 \
     vim \
     wget \
-    curl
+    curl \
+    git
 
 # Add a non-root user
 RUN addgroup --gid $GROUP_ID app
