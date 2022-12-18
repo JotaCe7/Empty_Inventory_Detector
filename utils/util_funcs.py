@@ -244,7 +244,7 @@ def pick_random_imgs(start, end, size, img_set:str = 'train') -> None:
         img_number = np.random.randint(low = start, high = end + 1)
         img_name = img_set+ '_' + str(img_number) + '.jpg'
         path_img = os.path.join(cons.IMG_FOLDER ,img_set, 'images',img_name)
-        if os.path.exists(path_img):
+        if os.path.exists(path_img) and img_number not in img_list:
             img_list.append(img_number)
         
     img_names = [ (img_set+'_' + str(img_i) + '.jpg', img_set+'_' + str(img_i) + '.txt' ) for img_i in img_list]

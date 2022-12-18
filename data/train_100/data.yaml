@@ -1,6 +1,0 @@
-#Labelmap
-train: ../images/train
-val: ../images/val
-
-nc: 2
-names: ['missing', 'product']

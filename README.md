@@ -68,8 +68,8 @@ $ docker run --rm --net host -it -v $(pwd):/home/app/src fp_sannicosan bash
 ```
 - **GPU:**
 ```bash
-$ sudo docker run --rm --net host --gpus all -it -v $(pwd):/home/app/src --workdir /home/app/src fp_sannicosan 
-$ sudo docker run --rm --net host --gpus all -it -v $(pwd):/home/app/src --workdir /home/app/src fp_sannicosan  # on AWS
+$ sudo docker run --rm --ipc=host --gpus all -it -v $(pwd):/home/app/src --workdir /home/app/src fp_sannicosan 
+$ sudo docker run --rm --ipc=host --gpus all -it -v $(pwd):/home/app/src --workdir /home/app/src fp_sannicosan  # on AWS
 ```
 
 ### Connect to AWS instance
@@ -88,7 +88,7 @@ $  ssh -N -T -L 8880:localhost:8880 sannicosan@ec2-3-135-229-79.us-east-2.comput
 $ jupyter notebook
 ```
 or
-$ sudo docker run -p 8880:8880 --rm -it -v "$(pwd):/home/app/src" --workdir /home/app/src fp_sannicosan bash 
+$ sudo docker run -p 8880:8880 --rm --ipc=host -it -v "$(pwd):/home/app/src" --workdir /home/app/src fp_sannicosan bash 
 $ jupyter notebook --port 8880 --ip 0.0.0.0
 
 
