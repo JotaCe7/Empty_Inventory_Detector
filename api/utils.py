@@ -1,8 +1,6 @@
 import hashlib
 import os
 import settings 
-import time
-
 
 def allowed_file(filename):
     """
@@ -48,11 +46,14 @@ def get_file_hash(file):
         # '
         ## -> When running from the Web UI:      file.filename := 'dog.jpeg' 
         
-    if os.path.dirname(file.filename):
-        filepath = os.path.join(file.filename)
-    else:
-        filepath = os.path.join('tests', file.filename)
+    # if os.path.dirname(file.filename):
+    #     filepath = os.path.join(file.filename)
+    # else:
+    #     filepath = os.path.join('tests', file.filename)
     
+    filepath= os.path.join(settings.DEMO_IMGS, file.filename)
+    
+    # print(f'CURRENT WORKING DIRECTORY: {os.listdir()}')
     with open(filepath,'rb') as f:
         data = f.read()
         name_md5 = hashlib.md5(data).hexdigest() + extension  # Example:  "0b3f45b266a97d7029dde7c2ba372093" + +".png"

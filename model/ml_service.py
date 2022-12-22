@@ -8,13 +8,14 @@ import time
 import sys
 
 import numpy as np
+import pandas as pd
 import cv2
 import redis
 import settings
 from get_model import get_model
 
-sys.path.append("..")
-from utils_data.bboxes import plot_bboxes
+from utils_model.bboxes import plot_bboxes
+
 
 #-----------------------------------------------------------------------------------------------------------------------------
 # INITIALIZATIONS

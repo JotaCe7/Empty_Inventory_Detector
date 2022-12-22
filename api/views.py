@@ -52,22 +52,22 @@ def index():
             #      Hint: Use middleware.model_predict() for sending jobs to model
             #            service using Redis.
             #   4. Update `context` dict with the corresponding values
-      
+            
             # 1. Creates unique name
             img_name = utils.get_file_hash(file)
             img_path = os.path.join(settings.UPLOAD_FOLDER,img_name)
             
             # 2. Stores image in 'static\uploads'
+            print('PATH:' , img_path)
             file.save(img_path)
             file.close()
             
             # 3. Sents image to be processed by the ML model
-            prediction, score = model_predict(img_name)
-            
+            mAP = model_predict(img_name)       
+        
             # 4. Updates context
             context = {
-                    "prediction": prediction,
-                    "score": score,
+                    "mAP": mAP,
                     "filename": img_path                      
                     }
             
@@ -84,7 +84,7 @@ def display_image(filename):
     """
     Display image predicted by the model in our UI.
     """
-    return redirect(url_for("static", filename="predictions/" + filename), code=301)
+    return redirect(url_for("static", filename="uploads/" + filename), code=301)
 
 
 @router.route("/predict", methods=["GET", "POST"])

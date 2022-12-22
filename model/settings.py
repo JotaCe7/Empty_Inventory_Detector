@@ -1,10 +1,8 @@
 import os
 
 # Images Stored
-UPLOAD_FOLDER = "uploads/"                      # Loaded by user
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+UPLOAD_FOLDER = "uploads/"                              # Loaded by user
 PREDICTIONS_FOLDER = "predictions/"                      # Predicted by model
-PRED_IMG_NAME = 'pred_img.jpg'
 
 # Non-Max Suppression overlapping threshold
 OVERLAP_THRESH = 0.7

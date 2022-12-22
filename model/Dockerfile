@@ -14,12 +14,13 @@ RUN apt-get update && \
     git \
     libgl1-mesa-glx
 
-
-
 ADD requirements.txt .
 RUN pip3 install -r requirements.txt
 
-ENV PYTHONPATH=$PYTHONPATH:/src/
+# ENV PYTHONPATH=$PYTHONPATH:src/
+# ENV PYTHONPATH=$PYTHONPATH:src/utils_data
+
+ENV PYTHONPATH=$PYTHONPATH:/src
 
 ADD ./ /src/
 

@@ -2,7 +2,7 @@ version: "3.2"
 services:
   api:
     image: flask_api
-    container_name: ml_api
+    container_name: api_fp
     build:
       context: ./api
       target: build
@@ -39,3 +39,4 @@ services:
     volumes:
       - ./predictions:/src/predictions
       - ./uploads:/src/uploads
+

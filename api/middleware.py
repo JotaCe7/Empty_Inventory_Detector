@@ -64,7 +64,7 @@ def model_predict(image_name):
         time.sleep(settings.API_SLEEP)
 
 
-    # TODO: Change the output format
+    #  Change the output format
     output_dict =json.loads(output)                                                
     mAP = output_dict.values()
     

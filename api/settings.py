@@ -3,8 +3,9 @@ import os
 # Run API in Debug mode
 API_DEBUG_FLAG= True
 
-# We will store images uploaded by the user on this folder
-UPLOAD_FOLDER = "static/uploads/"
+# Images
+DEMO_IMGS = "demo_imgs/"                        # Store images for demo
+UPLOAD_FOLDER = "static/uploads/"               # Store h5 hashed images (uploaded by user)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
