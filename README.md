@@ -71,7 +71,15 @@ $ docker run --rm --net host -it -v $(pwd):/home/app/src fp_sannicosan bash
 $ sudo docker run --rm --ipc=host --gpus all -it -v $(pwd):/home/app/src --workdir /home/app/src fp_sannicosan 
 $ sudo docker run --rm --ipc=host --gpus all -it -v $(pwd):/home/app/src --workdir /home/app/src fp_sannicosan  # on AWS
 ```
+### Docker API Services
 
+To run the services using compose:
+
+```bash
+$ export AWS_ACCESS_KEY_ID="AKIA2JHUK4EGCLO2FNS4"
+$ export AWS_SECRET_ACCESS_KEY="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"
+$ docker-compose up --build -d
+```
 ### Connect to AWS instance
 ssh -i "~/.ssh/id_ed25519" sannicosan@ec2-3-135-229-79.us-east-2.compute.amazonaws.com
 cd /home/sannicosan/
