@@ -79,14 +79,14 @@ def predict_bboxes(img_name):
     pred_img_path = os.path.join(settings.PREDICTIONS_FOLDER, img_name1)  
     # Predict (draw all bounding boxes) and store
     img_pred = plot_bboxes(orig_img_path, box_coordinates= best_bboxes, skip_plot = True ) 
-    cv2.imwrite(pred_img_path, cv2.resize(img_pred, (settings.TARGET_IMSIZE,)*2))                    # store as: "predictions/<img_name_bbox.jpg>"
+    cv2.imwrite(pred_img_path, img_pred)                    # store as: "predictions/<img_name_bbox.jpg>"
     
     ## 2. Heatmap 
     img_name2 =  ''.join(img_base_name) + '_heat' + extension
     pred_img_path = os.path.join(settings.PREDICTIONS_FOLDER, img_name2)  
     # Predict (draw all bounding boxes with heatmp) and store
     img_pred = plot_bboxes(orig_img_path, box_coordinates= bboxes.astype(int), skip_plot = True, style = 'heatmap' ) 
-    cv2.imwrite(pred_img_path, cv2.resize(img_pred, (settings.TARGET_IMSIZE,)*2))                    # store as: "predictions/<img_name_heatmap.jpg>"
+    cv2.imwrite(pred_img_path,img_pred)                    # store as: "predictions/<img_name_heatmap.jpg>"
                         
 
 def classify_process():

@@ -16,6 +16,6 @@ ANNOT_COLS = ['img_name', 'x1', 'y1', 'x2', 'y2', 'type', 'total_width', 'total_
 CRITERIA = ['area','n_bboxes']
 
 # Colors
-RED =  (255, 0, 0)  
+BLUE =  (255, 0, 0)  
 GREEN = (0, 255, 0)  
-BLUE =   (0, 0, 255)
+RED =   (0, 0, 255)
