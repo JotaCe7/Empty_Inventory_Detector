@@ -76,8 +76,6 @@ $ sudo docker run --rm --ipc=host --gpus all -it -v $(pwd):/home/app/src --workd
 To run the services using compose:
 
 ```bash
-$ export AWS_ACCESS_KEY_ID="AKIA2JHUK4EGCLO2FNS4"
-$ export AWS_SECRET_ACCESS_KEY="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"
 $ docker-compose up --build -d
 ```
 ### Connect to AWS instance

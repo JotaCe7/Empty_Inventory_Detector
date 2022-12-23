@@ -4,6 +4,8 @@ import os
 UPLOAD_FOLDER = "uploads/"                              # Loaded by user
 PREDICTIONS_FOLDER = "predictions/"                      # Predicted by model
 
+# Target image size
+TARGET_IMSIZE = 640
 # Non-Max Suppression overlapping threshold
 OVERLAP_THRESH = 0.7
 
