@@ -84,14 +84,19 @@ def display_image(filename):
     """
     Display image uploaded.
     """
-    return redirect(url_for("static", filename="uploads/" + filename), code=301)
+    return redirect(url_for("static", filename="uploads/" + filename))
 
 @router.route("/display_predict/<filename>")
 def display_predict(filename):
     """
     Display image predicted by the model in our UI.
     """
-    return redirect(url_for("static", filename="uploads_predictions/" + filename), code=301)
+    print('filename', filename)
+    basename, extension = os.path.splitext(filename)
+    filename2 = basename + "_bbox" + extension
+    print('filename', filename)
+
+    return redirect(url_for("static", filename="predictions/" + filename2))
 
 @router.route("/predict", methods=["GET", "POST"])
 def predict(file = None):

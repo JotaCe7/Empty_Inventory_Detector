@@ -1,7 +1,7 @@
 version: "3.2"
 services:
   api:
-    image: flask_api
+    image: flask_api_fp
     container_name: api_fp
     build:
       context: ./api
@@ -21,7 +21,7 @@ services:
     volumes:
       - ./feedback:/src/feedback
       - ./uploads:/src/static/uploads
-      - ./predictions:/src/static/uploads_predictions
+      - ./predictions:/src/static/predictions
       - ./api/templates:/src/templates
       - ./api/static:/src/static
 
@@ -31,7 +31,8 @@ services:
       - PYTHONUNBUFFERED=1
 
   model:
-    image: ml_service
+    image: ml_service_fp
+    container_name: model_fp
     build:
       context: ./model
       target: build

@@ -1,6 +1,7 @@
 import hashlib
 import os
 import settings 
+from posixpath import splitext
 
 def allowed_file(filename):
     """
@@ -41,21 +42,27 @@ def get_file_hash(file):
     #  DONE
     extension = '.' + file.filename.split('.')[-1].lower()
     
-    ## Checks if 'test\' directory comes before file.filename 
-        ## -> When running the docker test:      file.filename := 'tests/bash
-        # '
-        ## -> When running from the Web UI:      file.filename := 'dog.jpeg' 
+    # ## Checks if 'test\' directory comes before file.filename 
+    #     ## -> When running the docker test:      file.filename := 'tests/bash
+    #     # '
+    #     ## -> When running from the Web UI:      file.filename := 'dog.jpeg' 
         
-    # if os.path.dirname(file.filename):
-    #     filepath = os.path.join(file.filename)
-    # else:
-    #     filepath = os.path.join('tests', file.filename)
+    # # if os.path.dirname(file.filename):
+    # #     filepath = os.path.join(file.filename)
+    # # else:
+    # #     filepath = os.path.join('tests', file.filename)
     
-    filepath= os.path.join(settings.DEMO_IMGS, file.filename)
+    # filepath= os.path.join(settings.UPLOAD_FOLDER, file.filename)
     
-    # print(f'CURRENT WORKING DIRECTORY: {os.listdir()}')
-    with open(filepath,'rb') as f:
-        data = f.read()
-        name_md5 = hashlib.md5(data).hexdigest() + extension  # Example:  "0b3f45b266a97d7029dde7c2ba372093" + +".png"
+    # # print(f'CURRENT WORKING DIRECTORY: {os.listdir()}')
+    # with open(filepath,'rb') as f:
+    #     data = f.read()
+    #     name_md5 = hashlib.md5(data).hexdigest() + extension  # Example:  "0b3f45b266a97d7029dde7c2ba372093" + +".png"
     
-    return name_md5                                                                 
+    # return name_md5
+    file_contents = file.read()
+    md5hash = hashlib.md5(file_contents).hexdigest()
+    extension = splitext(file.filename)[1]
+    hashed_name = md5hash + extension
+    file.seek(0)
+    return hashed_name

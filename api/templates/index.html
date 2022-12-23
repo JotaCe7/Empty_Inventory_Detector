@@ -11,12 +11,12 @@
     <link
       rel="stylesheet"
       type="text/css"
-      href="{{ url_for('static', filename='fonts/stylesheet.css') }}"
+      href="{{ url_for('static', filename='web/fonts/stylesheet.css') }}"
     />
     <link
       rel="stylesheet"
       type="text/css"
-      href="{{ url_for('static', filename='styles/style.css') }}"
+      href="{{ url_for('static', filename='web/styles/style.css') }}"
     />
   </head>
 
@@ -24,7 +24,7 @@
     <header>
       <a href="https://anyoneai.com/" target="_blank">
         <img
-          src="{{url_for('static', filename='images/logo_anyone.png')}}"
+          src="{{url_for('static', filename='web/resources/logo_anyone.png')}}"
           alt="Anyone AI Logo"
           id="anyone-logo"
         />
@@ -41,17 +41,22 @@
         Hello {{ name }}! Please upload the shelf image to be detected by
         clicking the button below
       </h3>
-      {% endif %} {% if filename %}
+      {% endif %}
+      
+   
+      
+      
+      {% if filename %}
       <div class="img_container">
         <img
           src="{{ url_for('app_router.display_image', filename=filename) }}"
         />
         <div>Preprocessing</div>
         <img
-          src="{{ url_for('app_router.display_predict', filename=filename) }}"
+          src="{{ url_for('app_router.display_predict', filename=filename) }}" alt="BLABLABLA"
         />
       </div>
-      {% if context['mAP'] %}
+      {% if context['mAP2'] %}
       <div class="row">
         <div class="col-25">
           <label for="subject">
@@ -81,7 +86,7 @@
         />
       </div>
       <div id="upload-section">
-        <input type="submit" value="Upload" class="button" />
+        <input id="upload-button" type="submit" value="Upload" class="button" />
       </div>
     </form>
 
@@ -95,5 +100,9 @@
 
       {% endfor %} {% endif %} {% endwith %}
     </div>
+
+    <script src="{{ url_for('static', filename='web/js/app.js') }}"></script>
+
+    <noscript>You need to enable JavaScript to view the full site.</noscript>
   </body>
 </html>

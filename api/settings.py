@@ -4,8 +4,9 @@ import os
 API_DEBUG_FLAG= True
 
 # Images
-DEMO_IMGS = "demo_imgs/"                        # Store images for demo
+#DEMO_IMGS = "demo_imgs/"                        # Store images for demo
 UPLOAD_FOLDER = "static/uploads/"               # Store h5 hashed images (uploaded by user)
+PREDICTIONS_FOLDER = "static/predictions/"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
