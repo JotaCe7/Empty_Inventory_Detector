@@ -21,6 +21,9 @@ services:
     volumes:
       - ./feedback:/src/feedback
       - ./uploads:/src/static/uploads
+      - ./predictions:/src/static/uploads_predictions
+      - ./api/templates:/src/templates
+      - ./api/static:/src/static
 
   redis:
     image: redis:6.2.6
