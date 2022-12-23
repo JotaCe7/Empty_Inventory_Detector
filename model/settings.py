@@ -11,7 +11,7 @@ OVERLAP_THRESH = 0.7
 
 # S3 models
 MODELS_FOLDER_S3 = "anyoneai-datasets/trained_models"
-BEST_MODEL = "best.pt" 
+BEST_MODEL = "bestv2.pt" 
 
 # REDIS
 # Queue name
