@@ -13,6 +13,10 @@ OVERLAP_THRESH = 0.7
 MODELS_FOLDER_S3 = "anyoneai-datasets/trained_models"
 BEST_MODEL = "bestv2.pt" 
 
+# CLASSES
+PRODUCT = 3
+MISSING = 2
+
 # REDIS
 # Queue name
 REDIS_QUEUE = "service_queue"

@@ -14,6 +14,8 @@ from matplotlib.axes import Axes
 from utils_model import util_funcs 
 from utils_model import cons
 
+from settings import PRODUCT
+
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Functions
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -117,7 +119,7 @@ def plot_bboxes(img_path: str = os.path.join(cons.IMG_FOLDER,'train/images/train
             
             x1, y1, x2, y2 = (box_coords.x1, box_coords.y1, box_coords.x2, box_coords.y2)
             
-            if box_coords['class'] == 1:
+            if box_coords['class'] == PRODUCT:
                 img = cv2.rectangle(img, (x1, y1), (x2, y2), cons.BLUE, thickness=5)
             else:
                 img = cv2.rectangle(img, (x1, y1), (x2, y2), cons.RED, thickness=12)
