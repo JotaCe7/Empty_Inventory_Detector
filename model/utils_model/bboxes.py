@@ -134,20 +134,12 @@ def plot_bboxes(img_path: str = os.path.join(cons.IMG_FOLDER,'train/images/train
             if box_coords['class'] == CLASSES.PRODUCT:
                 img = cv2.rectangle(img, (x1, y1), (x2, y2), cons.BLUE, thickness=5)
             else:
-                img = cv2.rectangle(img, (x1, y1), (x2, y2), cons.RED, thickness=12)
+                img = cv2.rectangle(img, (x1, y1), (x2, y2), cons.RED, thickness=7)
                   
     
     elif style == 'heatmap':
         
         for cls in CLASSES:
-          print(cls)
-          print(cls.value)
-          print(cls.name)
-          print(type(cls.name))
-          print(COLORMAPS[cls.name])
-          print(type(COLORMAPS[cls.name]))
-          print(COLORMAPS[cls.name].value)
-          print(type(COLORMAPS[cls.name].value))
           img = apply_heatmap(img,box_coordinates.loc[box_coordinates['class']==cls.value,:], getattr(cv2, COLORMAPS[cls.name].value))
 
     # Plot image with boxes
