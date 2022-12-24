@@ -1,4 +1,5 @@
 import os
+from enum import Enum
 
 # Images Stored
 UPLOAD_FOLDER = "uploads/"                              # Loaded by user
@@ -14,8 +15,14 @@ MODELS_FOLDER_S3 = "anyoneai-datasets/trained_models"
 BEST_MODEL = "bestv2.pt" 
 
 # CLASSES
-PRODUCT = 3
-MISSING = 2
+class CLASSES(Enum):
+  PRODUCT = 3
+  MISSING = 2
+
+# COLORMAP PER CLASS
+class COLORMAPS(Enum):
+  PRODUCT = 'COLORMAP_TURBO'
+  MISSING = 'COLORMAP_RAINBOW'
 
 # REDIS
 # Queue name

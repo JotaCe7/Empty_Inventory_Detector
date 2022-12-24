@@ -13,8 +13,21 @@ from matplotlib.axes import Axes
 # Self-made
 from utils_model import util_funcs 
 from utils_model import cons
+from enum import Enum
 
-from settings import PRODUCT
+#from settings import CLASSES, COLORMAP
+
+
+class CLASSES(Enum):
+  PRODUCT = 3
+  MISSING = 2
+
+# COLORMAP PER CLASS
+class COLORMAPS(Enum):
+  PRODUCT = 'COLORMAP_TURBO'
+  MISSING = 'COLORMAP_RAINBOW'
+
+
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Functions
@@ -106,7 +119,6 @@ def plot_bboxes(img_path: str = os.path.join(cons.IMG_FOLDER,'train/images/train
     """
     #Read the image
     img = cv2.imread(img_path)
-    img2 = img.copy()
     
     if style == 'bbox':
         
@@ -119,7 +131,7 @@ def plot_bboxes(img_path: str = os.path.join(cons.IMG_FOLDER,'train/images/train
             
             x1, y1, x2, y2 = (box_coords.x1, box_coords.y1, box_coords.x2, box_coords.y2)
             
-            if box_coords['class'] == PRODUCT:
+            if box_coords['class'] == CLASSES.PRODUCT:
                 img = cv2.rectangle(img, (x1, y1), (x2, y2), cons.BLUE, thickness=5)
             else:
                 img = cv2.rectangle(img, (x1, y1), (x2, y2), cons.RED, thickness=12)
@@ -127,34 +139,17 @@ def plot_bboxes(img_path: str = os.path.join(cons.IMG_FOLDER,'train/images/train
     
     elif style == 'heatmap':
         
-        # Change all pixels to black and draw white rectangles in bounding boxxes of class 0
-        # This is because we want all pixels white or black
-        img[:,:] = (0,0,0)    
-        
-        for _,row in box_coordinates.loc[box_coordinates["class"]==PRODUCT,:].iterrows():
-            
-            img  = cv2.rectangle(img, (row["xmin"], row["ymin"]), (row["xmax"], row["ymax"]), (255,255,255),-1)
-       
-        #For using the distance transformation we need a black/white mask
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-     
-        #Distance transformation the core of the code
-        img = cv2.distanceTransform(img, cv2.DIST_L1, maskSize=5).astype(np.uint8)
-       
-        #Try different colormaps an see the difference
-        img = cv2.applyColorMap(img, cv2.COLORMAP_AUTUMN)
-        
-        #For each class 0 we iterate joining the heatmap pixels to the image
-        #The 0.7 and 0.3 after the pixel selection is for transparency. Try different values
-        img3 = img2
-        
-        for _,row in box_coordinates.loc[box_coordinates["class"]==PRODUCT,:].iterrows():
-            
-            img3  = cv2.addWeighted( img[row["ymin"]:row["ymax"],row["xmin"]:row["xmax"]], 0.7, img2[row["ymin"]:row["ymax"],row["xmin"]:row["xmax"]], 0.3, 0)
-            img2[row["ymin"]:row["ymax"],row["xmin"]:row["xmax"]] = img3
+        for cls in CLASSES:
+          print(cls)
+          print(cls.value)
+          print(cls.name)
+          print(type(cls.name))
+          print(COLORMAPS[cls.name])
+          print(type(COLORMAPS[cls.name]))
+          print(COLORMAPS[cls.name].value)
+          print(type(COLORMAPS[cls.name].value))
+          img = apply_heatmap(img,box_coordinates.loc[box_coordinates['class']==cls.value,:], getattr(cv2, COLORMAPS[cls.name].value))
 
-        img = img2
-        
     # Plot image with boxes
     if not skip_plot:
         if axes:
@@ -163,6 +158,22 @@ def plot_bboxes(img_path: str = os.path.join(cons.IMG_FOLDER,'train/images/train
             plt.imshow(img)   
 
     return img
+
+def apply_heatmap(img, bboxes, colormap):
+  h, w , _ = img.shape
+  img_bw = np.zeros((h,w,1), np.uint8)
+  for _, row in bboxes.iterrows():
+    img_bw[row["y1"]:row["y2"], row["x1"]:row["x2"]] = 255
+  img_bw = cv2.distanceTransform(img_bw, cv2.DIST_L1, maskSize=5).astype(np.uint8)
+  img_bw = cv2.applyColorMap(img_bw, colormap)
+
+  for _, row in bboxes.iterrows():
+    merged_bbox  = cv2.addWeighted( img_bw[row["y1"]:row["y2"],row["x1"]:row["x2"]], 0.8, img[row["y1"]:row["y2"],row["x1"]:row["x2"]], 0.2, 0)
+    img[row["y1"]:row["y2"],row["x1"]:row["x2"]] = merged_bbox
+
+  return img
+
+
 
 #Non Max Supression: best bounding box
 def NMS(img_tuple, boxes, overlapThresh = 0.4):
