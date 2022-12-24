@@ -236,6 +236,8 @@ footer {
     margin: 1cm;
 }
 
+
+
 .img_container {
     display: flex;
     justify-content: center;
@@ -248,8 +250,12 @@ footer {
 .img_container>img {
     max-width: 40rem;
     width: 100%;
+    margin: 4rem;
 }
 
 .img_container>div {
     margin: 4rem;
 }
+
+.hidden{display:none}
+

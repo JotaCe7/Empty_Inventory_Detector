@@ -131,7 +131,7 @@ def plot_bboxes(img_path: str = os.path.join(cons.IMG_FOLDER,'train/images/train
         # This is because we want all pixels white or black
         img[:,:] = (0,0,0)    
         
-        for _,row in box_coordinates.loc[box_coordinates["class"]==0,:].iterrows():
+        for _,row in box_coordinates.loc[box_coordinates["class"]==PRODUCT,:].iterrows():
             
             img  = cv2.rectangle(img, (row["xmin"], row["ymin"]), (row["xmax"], row["ymax"]), (255,255,255),-1)
        
@@ -142,13 +142,13 @@ def plot_bboxes(img_path: str = os.path.join(cons.IMG_FOLDER,'train/images/train
         img = cv2.distanceTransform(img, cv2.DIST_L1, maskSize=5).astype(np.uint8)
        
         #Try different colormaps an see the difference
-        img = cv2.applyColorMap(img, cv2.COLORMAP_PLASMA)
+        img = cv2.applyColorMap(img, cv2.COLORMAP_AUTUMN)
         
         #For each class 0 we iterate joining the heatmap pixels to the image
         #The 0.7 and 0.3 after the pixel selection is for transparency. Try different values
         img3 = img2
         
-        for _,row in box_coordinates.loc[box_coordinates["class"]==0,:].iterrows():
+        for _,row in box_coordinates.loc[box_coordinates["class"]==PRODUCT,:].iterrows():
             
             img3  = cv2.addWeighted( img[row["ymin"]:row["ymax"],row["xmin"]:row["xmax"]], 0.7, img2[row["ymin"]:row["ymax"],row["xmin"]:row["xmax"]], 0.3, 0)
             img2[row["ymin"]:row["ymax"],row["xmin"]:row["xmax"]] = img3

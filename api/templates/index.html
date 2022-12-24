@@ -42,37 +42,43 @@
         clicking the button below
       </h3>
       {% endif %}
-      
-   
-      
+
+
       
       {% if filename %}
       <div class="img_container">
         <img
-          src="{{ url_for('app_router.display_image', filename=filename) }}"
+          src="{{ url_for('app_router.display_heatmap', filename=filename) }}"
         />
-        <div>Preprocessing</div>
+
+        
+
+
         <img
           src="{{ url_for('app_router.display_predict', filename=filename) }}" alt="BLABLABLA"
         />
       </div>
-      {% if context['mAP2'] %}
-      <div class="row">
-        <div class="col-25">
-          <label for="subject">
-            Mean Average Precision: {{ context['mAP'] }} </label
-          ><br />
+        {% if context['mAP2'] %}
+        <div class="row">
+          <div class="col-25">
+            <label for="subject">
+              Mean Average Precision: {{ context['mAP'] }} </label
+            ><br />
+          </div>
         </div>
-      </div>
-      <form id="form" method="POST" action="/feedback">
-        <button type="submit">Report incorrect answer</button>
-        <input
-          name="report"
-          style="visibility: hidden"
-          value="{'filename': '{{ filename }}', 'mAP': '{{ context['prediction'] }}' }"
-        />
-      </form>
-      {% endif %} {% endif %}
+        <form id="form" method="POST" action="/feedback">
+          <button type="submit">Report incorrect answer</button>
+          <input
+            name="report"
+            style="visibility: hidden"
+            value="{'filename': '{{ filename }}', 'mAP': '{{ context['prediction'] }}' }"
+          />
+        </form>
+        {% endif %}
+
+        <p class="text-3xl mt-4"><a href="{{ url_for('app_router.new_upload') }}">Upload</a> a new image</p>
+    
+      {% endif %}
     </section>
 
     <form method="post" action="/" enctype="multipart/form-data">

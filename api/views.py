@@ -16,6 +16,16 @@ from middleware import model_predict
 
 router = Blueprint("app_router", __name__, template_folder="templates")
 
+@router.route("/new_prediction", methods=["GET"])
+def new_upload():
+  # context = {
+  #             'models' : settings.AVAILABLE_MODELS
+  #           }
+  #return render_template("index.html", context=context, scroll="upload_image")
+  return render_template("index.html",  scroll="upload_image")
+
+
+
 
 @router.route("/", methods=["GET", "POST"])
 def index():
@@ -91,10 +101,18 @@ def display_predict(filename):
     """
     Display image predicted by the model in our UI.
     """
-    print('filename', filename)
     basename, extension = os.path.splitext(filename)
     filename2 = basename + "_bbox" + extension
-    print('filename', filename)
+
+    return redirect(url_for("static", filename="predictions/" + filename2))
+
+@router.route("/display_heatmap/<filename>")
+def display_heatmap(filename):
+    """
+    Display image predicted by the model in our UI.
+    """
+    basename, extension = os.path.splitext(filename)
+    filename2 = basename + "_heat" + extension
 
     return redirect(url_for("static", filename="predictions/" + filename2))
 
