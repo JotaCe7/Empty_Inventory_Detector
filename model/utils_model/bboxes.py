@@ -14,6 +14,9 @@ from matplotlib.axes import Axes
 from utils_model import util_funcs 
 from utils_model import cons
 from enum import Enum
+from PIL import Image
+
+import settings
 
 #from settings import CLASSES, COLORMAP
 
@@ -164,10 +167,182 @@ def apply_heatmap(img, bboxes, colormap):
 
   return img
 
+def euristic_detection(img_path: str, box_coordinates):
+  print('EURISTIC')
+  #Read the image
+  img = cv2.imread(img_path)
+  x_min,x_max,y_min,y_max = box_coordinates["x1"].min(), box_coordinates["x2"].max(), box_coordinates["y1"].min(), box_coordinates["y2"].max()
+  height, width, channels = img.shape
+
+  white = np.zeros((height, width), np.uint8)
+
+  for _,row in box_coordinates.iterrows():
+
+      white  = cv2.rectangle(white, (row["x1"]+24, row["y1"]+6), (row["x2"]-24, row["y2"]-6),
+          (255,0,0),-1)
+
+  white =  255 - white
+
+  crop = img[y_min:y_max, x_min:x_max]
+  cv2.imwrite(settings.UPLOAD_FOLDER + "crop.png", crop)
+
+  white = white[y_min:y_max, x_min:x_max] 
+  dist = cv2.distanceTransform(white, cv2.DIST_L1 , maskSize=3).astype(np.uint8)
+
+  heatmap_img = cv2.applyColorMap(dist, cv2.COLORMAP_JET)
+
+  hsv=cv2.cvtColor(heatmap_img,cv2.COLOR_BGR2HSV)
+
+  lowerValues = np.array([100, 50, 70])
+  upperValues = np.array([128, 255, 255])
+
+  bluepenMask = cv2.inRange(hsv, lowerValues, upperValues)
+
+
+  heatmap_img[bluepenMask>0] = (255,255,255)
+
+  print(1)
+  cv2.imwrite(settings.UPLOAD_FOLDER +  "pivot.png", heatmap_img)
+
+  pivot = Image.open(settings.UPLOAD_FOLDER +  "pivot.png")
+  pivot = pivot.convert("RGBA")
+  datas = pivot.getdata()
+ 
+  newData = []
+  print(type(datas))
+  for item in datas:
+      if item[0] == 255 and item[1] == 255 and item[2] == 255:
+          newData.append((255, 255, 255, 0))
+      else:
+          newData.append(item)
+  print(1)
+  pivot.putdata(newData)
+  # pivot.save("./New.png", "PNG")
+
+  background = Image.open(settings.UPLOAD_FOLDER +  "crop.png")
+
+  background.paste(pivot, (0, 0), pivot)
+
+  background.save(settings.UPLOAD_FOLDER + "alpha_imposed.png", "PNG")
+
+
+  #This is for contour
+  heatmap_img = cv2.cvtColor(heatmap_img, cv2.COLOR_BGR2GRAY)
+
+
+  ret, thresh = cv2.threshold(heatmap_img , 240, 255, cv2.THRESH_BINARY)
+  # thresh = 255 - thresh
+  # print(thresh)
+  cv2.imwrite(settings.UPLOAD_FOLDER +  'output_imgtest.png', thresh  )
+
+  
+  #backtorgb = cv2.cvtColor(thresh,cv2.COLOR_GRAY2RGB)
+  # backtorgb = cv2.merge((thresh,thresh,thresh))
+  # print(backtorgb)
+  # crop2 = crop + backtorgb
+  crop2 = crop.copy()
+  h,w= thresh.shape
+  for y in range(0, h):
+        for x in range(0, w):
+            if thresh[y,x] < 255:
+                crop2[y,x] = (0,0,255)
+
+  cv2.imwrite(settings.UPLOAD_FOLDER + "crop2.jpg", crop2  )
+
+  contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE ) #cv2.CHAIN_APPROX_NONE
+  cv2.drawContours(crop , contours, -1, (0,0,255), 7)
+
+  cv2.imwrite(settings.UPLOAD_FOLDER + "contour.jpg", crop  )
+
+
+
+  return crop2
+
+def euristic_detection2(img,name):
+    '''
+    recives path to images and saves two images, full heatmap and heatmap imposed
+    '''
+    
+    img = cv2.imread(img)
+    output = model(img)
+    df = output.pandas().xyxy[0][["xmin","xmax","ymin","ymax"]].astype(int)
+    x_min,x_max,y_min,y_max = df["xmin"].min(), df["xmax"].max(), df["ymin"].min(), df["ymax"].max()
+
+    height, width, channels = img.shape
+
+    white = np.zeros((height, width), np.uint8)
+
+    for _,i in df.iterrows():
+
+        white  = cv2.rectangle(white, (i["xmin"]+24, i["ymin"]+6), (i["xmax"]-24, i["ymax"]-6),
+            (255,0,0),-1)
+
+    white =  255 - white
+
+    crop = img[y_min:y_max, x_min:x_max]
+    cv2.imwrite("crop.png", crop)
+
+    white = white[y_min:y_max, x_min:x_max] 
+    dist = cv2.distanceTransform(white, cv2.DIST_L1 , maskSize=3).astype(np.uint8)
+
+    heatmap_img = cv2.applyColorMap(dist, cv2.COLORMAP_JET)
+    
+    super_imposed_img = cv2.addWeighted(heatmap_img, 0.5, crop, 0.5, 0)
+    cv2.imwrite(f"{name}_full_heat.jpg", super_imposed_img)
+
+
+    
+    hsv=cv2.cvtColor(heatmap_img,cv2.COLOR_BGR2HSV)
+
+    lowerValues = np.array([100, 50, 70])
+    upperValues = np.array([128, 255, 255])
+
+    bluepenMask = cv2.inRange(hsv, lowerValues, upperValues)
+
+    
+    heatmap_img[bluepenMask>0] = (255,255,255)
+
+    print(1)
+    cv2.imwrite("pivot.png", heatmap_img)
+
+    pivot = Image.open("pivot.png")
+    pivot = pivot.convert("RGBA")
+    datas = pivot.getdata()
+ 
+    newData = []
+    print(type(datas))
+    for item in datas:
+        if item[0] == 255 and item[1] == 255 and item[2] == 255:
+            newData.append((255, 255, 255, 0))
+        else:
+            newData.append(item)
+    print(1)
+    pivot.putdata(newData)
+   # pivot.save("./New.png", "PNG")
+
+    background = Image.open("crop.png")
+
+    background.paste(pivot, (0, 0), pivot)
+
+    background.save(f"./{name}_alpha_imposed.png", "PNG")
+
+
+    #This is for contour
+    heatmap_img = cv2.cvtColor(heatmap_img, cv2.COLOR_BGR2GRAY)
+
+
+    ret, thresh = cv2.threshold(heatmap_img , 240, 255, cv2.THRESH_BINARY)
+    cv2.imwrite('output_imgtest.png', thresh  )
+
+    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE ) #cv2.CHAIN_APPROX_NONE
+    cv2.drawContours(crop , contours, -1, (0,0,255), 7)
+
+    cv2.imwrite(f"{name}_contour.jpg", crop  )
+
 
 
 #Non Max Supression: best bounding box
-def NMS(img_tuple, boxes, overlapThresh = 0.4):
+def NMS(boxes, overlapThresh = 0.4):
     
     """
     Receives `boxes` as a `numpy.ndarray` and gets the best bounding 
@@ -219,12 +394,8 @@ def NMS(img_tuple, boxes, overlapThresh = 0.4):
             
     best_bboxes =   boxes[indices].astype(int)
     
-    img_name = img_tuple[0]
-    img_size = img_tuple[1]
     
-    best_bboxes_df = pd.DataFrame(data = best_bboxes, index= [img_name]*len(best_bboxes), columns=["x1","y1","x2","y2","class"])
-    best_bboxes_df['total_height'] = img_size[0]
-    best_bboxes_df['total_width'] = img_size[1]
+    best_bboxes_df = pd.DataFrame(data = best_bboxes, columns=["x1","y1","x2","y2","class"])
     
     
     return best_bboxes_df

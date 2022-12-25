@@ -14,8 +14,7 @@ import redis
 import settings
 from get_model import get_model
 
-from utils_model.bboxes import plot_bboxes
-from utils_model.bboxes import NMS
+from utils_model.bboxes import plot_bboxes, NMS, euristic_detection
 
 #-----------------------------------------------------------------------------------------------------------------------------
 # INITIALIZATIONS
@@ -58,7 +57,6 @@ def predict_bboxes(img_name):
     -------
     None
     """
-    
     # Load original image
     orig_img_path = os.path.join(settings.UPLOAD_FOLDER,img_name)
     img_orig = cv2.imread(orig_img_path)
@@ -69,19 +67,25 @@ def predict_bboxes(img_name):
     # df = df.sort_values("class")
     bboxes = df[["xmin","ymin","xmax","ymax","class"]]
     # Non-Max Supression: Filter only best bounding boxes
-    best_bboxes = NMS((img_name,img_orig.shape),bboxes.to_numpy(), overlapThresh= settings.OVERLAP_THRESH)
+    best_bboxes = NMS(bboxes.to_numpy(), overlapThresh= settings.OVERLAP_THRESH)
     
     # Build image name and path
     extension = '.' + img_name.split('.')[-1]
     img_base_name = img_name.split('.')[:-1]
     
+    img_eur = euristic_detection(orig_img_path, best_bboxes)
+
     ## 1. BBox
     img_name1 =  ''.join(img_base_name) + '_bbox' + extension
     pred_img_path = os.path.join(settings.PREDICTIONS_FOLDER, img_name1)  
     # Predict (draw all bounding boxes) and store
     img_pred = plot_bboxes(orig_img_path, box_coordinates= best_bboxes, skip_plot = True ) 
-    cv2.imwrite(pred_img_path, img_pred)                    # store as: "predictions/<img_name_bbox.jpg>"
+    cv2.imwrite(pred_img_path, img_eur)                    # store as: "predictions/<img_name_bbox.jpg>"
     
+
+    
+
+
     ## 2. Heatmap 
     img_name2 =  ''.join(img_base_name) + '_heat' + extension
     pred_img_path = os.path.join(settings.PREDICTIONS_FOLDER, img_name2)  
